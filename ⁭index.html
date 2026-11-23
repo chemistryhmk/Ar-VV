@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Навчальний тест: Ароматичні вуглеводні. Арени (10 клас)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            font-size: 1.15rem;
+            line-height: 1.6;
+        }
+        .option-btn {
+            transition: all 0.2s ease;
+        }
+        .option-btn:not(:disabled):hover {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+        select {
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen py-8 px-4 flex flex-col justify-between">
+    <div class="max-w-4xl mx-auto w-full bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+        <!-- Header -->
+        <header class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-6 md:p-8">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold mb-1">Навчальний тест: Ароматичні вуглеводні (Арени)</h1>
+                    <p class="text-blue-100 text-lg">Органічна хімія • 10 клас • Миттєва перевірка та пояснення</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Progress Bar & Quiz Info -->
+        <div class="bg-slate-100 px-6 py-4 border-b border-slate-200 flex flex-wrap justify-between items-center gap-4">
+            <div id="progress-text" class="font-bold text-slate-700 text-lg">Завдання 1 з 20</div>
+            <div class="w-full sm:w-1/2 bg-slate-300 rounded-full h-3 overflow-hidden">
+                <div id="progress-bar" class="bg-blue-600 h-3 rounded-full transition-all duration-300" style="width: 5%;"></div>
+            </div>
+            <div id="badge-container">
+                <span id="type-badge" class="px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800">
+                    Вибір однієї відповіді
+                </span>
+            </div>
+        </div>
+
+        <!-- Main Quiz Content -->
+        <main class="p-6 md:p-10" id="quiz-container"></main>
+
+        <!-- Results View -->
+        <div id="results-container" class="hidden p-6 md:p-10">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold mb-3 text-slate-800">Результати навчального тесту</h2>
+                <div class="text-6xl font-extrabold text-blue-600 my-4" id="score-percentage">0%</div>
+                <p class="text-2xl font-medium text-slate-700" id="score-text">Ви набрали 0 з 20 балів</p>
+                <p class="text-lg text-slate-500 mt-2" id="score-feedback"></p>
+            </div>
+
+            <div class="flex justify-center mb-10">
+                <button onclick="restartQuiz()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition text-lg">
+                    Пройти тест знову
+                </button>
+            </div>
+
+            <hr class="my-8 border-slate-200">
+            <h3 class="text-2xl font-bold mb-6 text-slate-800">Підсумковий перегляд усіх завдань:</h3>
+            <div id="review-list" class="space-y-5"></div>
+        </div>
+
+        <!-- Footer Navigation -->
+        <footer id="quiz-footer" class="bg-slate-50 px-6 py-5 border-t border-slate-200 flex flex-wrap justify-between items-center gap-3">
+            <button id="prev-btn" onclick="prevQuestion()" class="px-6 py-2.5 rounded-xl border border-slate-300 font-semibold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition">
+                ← Назад
+            </button>
+            <div class="flex gap-3">
+                <button id="check-btn" onclick="checkCurrentQuestion()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-7 py-2.5 rounded-xl font-bold transition disabled:opacity-40 disabled:cursor-not-allowed">
+                    Перевірити відповідь
+                </button>
+                <button id="next-btn" onclick="nextQuestion()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-xl font-bold transition">
+                    Далі →
+                </button>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const quizData = [
+            // 1-12: Вибір однієї відповіді (літери правильних відповідей не повторюються підряд)
+            {
+                type: "single",
+                question: "Яка загальна формула описує клас ароматичних вуглеводнів найпростішого типу (гомологів бензену) при n ≥ 6?",
+                options: [
+                    "C<sub>n</sub>H<sub>2n+2</sub>",
+                    "C<sub>n</sub>H<sub>2n-6</sub>",
+                    "C<sub>n</sub>H<sub>2n-2</sub>",
+                    "C<sub>n</sub>H<sub>2n</sub>"
+                ],
+                correct: 1, // B
+                explanation: "До класу ароматичних вуглеводнів найпростішого типу із загальною формулою C<sub>n</sub>H<sub>2n-6</sub> (при n ≥ 6) відносяться бензен та його гомологи."
+            },
+            {
+                type: "single",
+                question: "Хто у 1825 році вперше виділив 3 г бензену зі світильного газу?",
+                options: [
+                    "Майкл Фарадей",
+                    "Ейльгард Мітчерліх",
+                    "Август Вільгельм фон Гофман",
+                    "Фрідріх Август Кекуле"
+                ],
+                correct: 0, // A
+                explanation: "У 1825 році Майкл Фарадей виділив зі світильного газу 3 г бензену."
+            },
+            {
+                type: "single",
+                question: "У якому стані гібридизації перебувають атоми Карбону в молекулі бензену?",
+                options: [
+                    "sp",
+                    "sp<sup>3</sup>",
+                    "sp<sup>2</sup>",
+                    "sp<sup>3</sup>d"
+                ],
+                correct: 2, // C
+                explanation: "Атоми Карбону в молекулі бензену знаходяться в стані sp<sup>2</sup>-гібридизації, а четверта негібридизована орбіталь утворює єдину π-систему."
+            },
+            {
+                type: "single",
+                question: "Які префікси використовують відповідно для позначення 1,2-, 1,3- та 1,4-дизаміщених гомологів бензену?",
+                options: [
+                    "орто-, мета-, пара-",
+                    "мета-, орто-, пара-",
+                    "пара-, орто-, мета-",
+                    "орто-, пара-, мета-"
+                ],
+                correct: 0, // A
+                explanation: "Для 1,2-ізомеру використовують префікс орто- (о-), для 1,3-ізомеру — мета- (м-), а для 1,4-ізомеру — пара- (п-)."
+            },
+            {
+                type: "single",
+                question: "Що утворюється в результаті окиснення метилбензену (толуєну) розчином KMnO<sub>4</sub>?",
+                options: [
+                    "Нітробензен",
+                    "Хлорбензен",
+                    "Фенол",
+                    "Бензойна кислота"
+                ],
+                correct: 3, // D
+                explanation: "Алкільні радикали в бензеновому ядрі легко окиснюються розчином KMnO<sub>4</sub>, і кінцевим продуктом окиснення завжди є бензойна кислота."
+            },
+            {
+                type: "single",
+                question: "Який вуглеводень є продуктом реакції гідрування бензену за наявності каталізатора (Ni, Pd або Pt)?",
+                options: [
+                    "Гексан",
+                    "Циклогексан",
+                    "Гексен",
+                    "Гексахлоран"
+                ],
+                correct: 1, // B
+                explanation: "Реакція приєднання водню (гідрування) до бензену в присутності Ni, Pd або Pt дає циклічний вуглеводень циклогексан."
+            },
+            {
+                type: "single",
+                question: "За якої умови відбувається реакція приєднання хлору до бензену з утворенням 1,2,3,4,5,6-гексахлороциклогексану («гексахлорану»)?",
+                options: [
+                    "За наявності FeBr<sub>3</sub>",
+                    "За наявності AlCl<sub>3</sub>",
+                    "Під дією УФ-опромінення",
+                    "У темряві при кімнатній температурі"
+                ],
+                correct: 2, // C
+                explanation: "Під дією УФ-опромінення хлор приєднується до бензену за радикальним механізмом з утворенням 1,2,3,4,5,6-гексахлороциклогексану."
+            },
+            {
+                type: "single",
+                question: "Яку назву має одновалентний ароматичний радикал C<sub>6</sub>H<sub>5</sub>-CH<sub>2</sub>-?",
+                options: [
+                    "Феніл",
+                    "Алліл",
+                    "Вініл",
+                    "Бензил"
+                ],
+                correct: 3, // D
+                explanation: "Ароматичний радикал C<sub>6</sub>H<sub>5</sub>- називається феніл, а радикал C<sub>6</sub>H<sub>5</sub>-CH<sub>2</sub>- — бензил."
+            },
+            {
+                type: "single",
+                question: "Який учений у 1867 році запропонував формулу бензену з діагональними зв'язками між протилежними атомами шестикутника?",
+                options: [
+                    "Дюар",
+                    "Клаус",
+                    "Кекуле",
+                    "Гофман"
+                ],
+                correct: 1, // B
+                explanation: "Поряд із формулою Кекуле (1865 р.) у 1867 році обговорювались формули Клауса (з діагональними зв'язками) та Дюара."
+            },
+            {
+                type: "single",
+                question: "Суміш яких концентрованих кислот називають нітрувальною сумішшю?",
+                options: [
+                    "Нітратної та сульфатної",
+                    "Нітратної та хлоридної",
+                    "Сульфатної та фосфатної",
+                    "Оцтової та нітратної"
+                ],
+                correct: 0, // A
+                explanation: "Нітрувальною називають суміш концентрованої нітратної (HNO<sub>3</sub>) та концентрованої сульфатної (H<sub>2</sub>SO<sub>4</sub>) кислот."
+            },
+            {
+                type: "single",
+                question: "Для виготовлення яких виробів використовують полістирен, що одержують зі стирену?",
+                options: [
+                    "Синтетичних мийних засобів",
+                    "Електро- і радіовиробів, труб, кранів, посуду, пінопластів",
+                    "Анілінових барвників",
+                    "Світильного газу"
+                ],
+                correct: 1, // B
+                explanation: "Завдяки високим електроізолювальним якостям із полістирену виготовляють електро- і радіовироби, труби, крани, посуд і пінопласти."
+            },
+            {
+                type: "single",
+                question: "Яке твердження правильно описує фізичні властивості бензену?",
+                options: [
+                    "Безбарвна рідина із «солодкуватим» запахом, нерозчинна у воді, легша за воду",
+                    "Безбарвна рідина, важча за воду, добре розчинна у воді",
+                    "Газ без запаху, добре розчинний у воді",
+                    "Тверда кристалічна речовина жовтого кольору"
+                ],
+                correct: 0, // A
+                explanation: "Бензен — безбарвна рідина із характерним «солодкуватим» запахом, нерозчинна у воді, легша за воду (ρ = 0,88 г/см³)."
+            },
+
+            // 13-16: Вибір декількох відповідей (по 6 варіантів, перемішані правильні відповіді)
+            {
+                type: "multiple",
+                question: "Укажіть УСІ реакції, які належать до реакцій ЗАМІЩЕННЯ для бензену:",
+                options: [
+                    "Гідрування (приєднання водню за наявності Ni, Pd або Pt)",
+                    "Галогенування (взаємодія з Cl<sub>2</sub> або Br<sub>2</sub> за наявності AlCl<sub>3</sub> чи FeCl<sub>3</sub>)",
+                    "Приєднання хлору під дією УФ-опромінення",
+                    "Нітрування (дією нітрувальної суміші при нагріванні)",
+                    "Горіння в надлишку кисню з утворенням CO<sub>2</sub> і H<sub>2</sub>O",
+                    "Алкілування алкілгалогенідами, алкенами або спиртами"
+                ],
+                correct: [1, 3, 5],
+                explanation: "До реакцій заміщення бензену належать галогенування за наявності каталізаторів (AlCl<sub>3</sub>, FeCl<sub>3</sub>), нітрування та алкілування. Гідрування і хлорування під УФ — це реакції приєднання, а горіння — окиснення."
+            },
+            {
+                type: "multiple",
+                question: "Оберіть УСІ правильні твердження про історію відкриття та дослідження бензену в XIX столітті:",
+                options: [
+                    "Е. Мітчерліх у 1834 році отримав бензен декарбоксилюванням бензойної кислоти",
+                    "М. Фарадей у 1867 році запропонував формулу бензену з діагональними зв'язками",
+                    "А. Гофман у 1845 році виявив бензен у кам'яновугільній смолі",
+                    "Ф. Кекуле у 1825 році вперше виділив 3 г бензену зі світильного газу",
+                    "Клаус і Дюар у 1867 році запропонували альтернативні структурні формули бензену",
+                    "Е. Мітчерліх у 1865 році запропонував циклічну структуру з чергуванням простих і подвійних зв'язків"
+                ],
+                correct: [0, 2, 4],
+                explanation: "Мітчерліх отримав бензен із бензойної кислоти (1834), Гофман знайшов його в кам'яновугільній смолі (1845), а Клаус і Дюар запропонували свої формули у 1867 р. Зі світильного газу бензен виділив Фарадей (1825), а формулу з чергуванням зв'язків запропонував Кекуле (1865)."
+            },
+            {
+                type: "multiple",
+                question: "Укажіть УСІ речовини з переліку, які належать до ароматичних вуглеводнів (аренів):",
+                options: [
+                    "Циклогексан",
+                    "Нафталін",
+                    "1,2,3,4,5,6-Гексахлороциклогексан («гексахлоран»)",
+                    "Антрацен",
+                    "Стирен (вінілбензен)",
+                    "Кумен (ізопропілбензен)"
+                ],
+                correct: [1, 3, 4, 5],
+                explanation: "Нафталін, антрацен, стирен і кумен містять бензенове кільце та належать до ароматичних вуглеводнів. Циклогексан — насичений циклічний вуглеводень, а гексахлоран — галогенопохідне циклогексану."
+            },
+            {
+                type: "multiple",
+                question: "Виберіть УСІ правильні твердження щодо властивостей, безпеки та застосування бензену:",
+                options: [
+                    "Добре розчиняється у воді та важчий за неї",
+                    "Є канцерогенною речовиною та ксенобіотиком",
+                    "Має температуру плавлення 5,5 °C і температуру кипіння 80 °C",
+                    "Є важливою сировиною для виробництва ліків, барвників, полімерів і пестицидів",
+                    "Є абсолютно безпечною речовиною без запаху",
+                    "Випари бензену подразнюють очі й слизові оболонки та спричиняють головний біль"
+                ],
+                correct: [1, 2, 3, 5],
+                explanation: "Бензен токсичний, канцерогенний, є ксенобіотиком, подразнює очі й слизові оболонки, має t<sub>пл</sub> = 5,5 °C, t<sub>кип</sub> = 80 °C і є важливою промисловою сировиною. При цьому він нерозчинний у воді й легший за неї."
+            },
+
+            // 17-20: Встановлення відповідності (правильна відповідь не напроти питання)
+            {
+                type: "matching",
+                question: "Встановіть відповідність між прізвищем ученого та його досягненням щодо бензену:",
+                premises: [
+                    "1. Майкл Фарадей",
+                    "2. Ейльгард Мітчерліх",
+                    "3. Август Вільгельм фон Гофман",
+                    "4. Фрідріх Август Кекуле"
+                ],
+                targets: [
+                    "A) Виявив бензен у кам'яновугільній смолі (1845 р.)",
+                    "B) Запропонував структуру з 6 атомів C із чергуванням простих і подвійних зв'язків (1865 р.)",
+                    "C) Виділив 3 г бензену зі світильного газу (1825 р.)",
+                    "D) Отримав бензен декарбоксилюванням бензойної кислоти (1834 р.)"
+                ],
+                correct: { 0: 2, 1: 3, 2: 0, 3: 1 }, // 1-C, 2-D, 3-A, 4-B
+                explanation: "1-C (Фарадей — світильний газ), 2-D (Мітчерліх — бензойна кислота), 3-A (Гофман — кам'яновугільна смола), 4-B (Кекуле — циклічна формула)."
+            },
+            {
+                type: "matching",
+                question: "Встановіть відповідність між систематичною назвою арену (за IUPAC) та його тривіальною назвою:",
+                premises: [
+                    "1. Метилбензен",
+                    "2. Вінілбензен",
+                    "3. Ізопропілбензен",
+                    "4. 1,2-Диметилбензен"
+                ],
+                targets: [
+                    "A) Кумен (Кумол)",
+                    "B) о-Ксилен (о-Ксилол)",
+                    "C) Толуєн (Толуол)",
+                    "D) Стирен (Стирол)"
+                ],
+                correct: { 0: 2, 1: 3, 2: 0, 3: 1 }, // 1-C, 2-D, 3-A, 4-B
+                explanation: "1-C (Метилбензен — толуєн), 2-D (Вінілбензен — стирен), 3-A (Ізопропілбензен — кумен), 4-B (1,2-диметилбензен — о-ксилен)."
+            },
+            {
+                type: "matching",
+                question: "Встановіть відповідність між реакцією бензену та її основним продуктом:",
+                premises: [
+                    "1. Гідрування (H<sub>2</sub>, Pd, 300°)",
+                    "2. Приєднання хлору (Cl<sub>2</sub>, УФ)",
+                    "3. Галогенування (Cl<sub>2</sub>, AlCl<sub>3</sub>)",
+                    "4. Нітрування (HNO<sub>3</sub>, H<sub>2</sub>SO<sub>4</sub>)"
+                ],
+                targets: [
+                    "A) Хлорбензен + HCl",
+                    "B) Нітробензен + H<sub>2</sub>O",
+                    "C) Циклогексан",
+                    "D) 1,2,3,4,5,6-Гексахлороциклогексан"
+                ],
+                correct: { 0: 2, 1: 3, 2: 0, 3: 1 }, // 1-C, 2-D, 3-A, 4-B
+                explanation: "1-C (Гідрування → циклогексан), 2-D (Хлорування під УФ → гексахлоран), 3-A (Каталітичне галогенування → хлорбензен), 4-B (Нітрування → нітробензен)."
+            },
+            {
+                type: "matching",
+                question: "Встановіть відповідність між формулою або процесом та назвою сполуки/радикала:",
+                premises: [
+                    "1. Радикал C<sub>6</sub>H<sub>5</sub>-",
+                    "2. Радикал C<sub>6</sub>H<sub>5</sub>-CH<sub>2</sub>-",
+                    "3. Продукт окиснення толуєну розчином KMnO<sub>4</sub>",
+                    "4. Природна ароматична сполука з приємним запахом"
+                ],
+                targets: [
+                    "A) Бензойна кислота (C<sub>6</sub>H<sub>5</sub>-COOH)",
+                    "B) Ванілін",
+                    "C) Феніл",
+                    "D) Бензил"
+                ],
+                correct: { 0: 2, 1: 3, 2: 0, 3: 1 }, // 1-C, 2-D, 3-A, 4-B
+                explanation: "1-C (C<sub>6</sub>H<sub>5</sub>- — феніл), 2-D (C<sub>6</sub>H<sub>5</sub>-CH<sub>2</sub>- — бензил), 3-A (окиснення толуєну дає бензойну кислоту), 4-B (ванілін — природна запашна сполука)."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let userAnswers = new Array(quizData.length).fill(null);
+        let checkedQuestions = new Array(quizData.length).fill(false);
+
+        function initQuiz() {
+            renderQuestion();
+        }
+
+        function isAnswered(idx) {
+            const q = quizData[idx];
+            const ans = userAnswers[idx];
+            if (q.type === 'single') return ans !== null;
+            if (q.type === 'multiple') return Array.isArray(ans) && ans.length > 0;
+            if (q.type === 'matching') return ans && Object.keys(ans).length === q.premises.length;
+            return false;
+        }
+
+        function evaluateQuestion(idx) {
+            const q = quizData[idx];
+            const ans = userAnswers[idx];
+            if (q.type === 'single') {
+                return { isFullCorrect: ans === q.correct, score: ans === q.correct ? 1 : 0 };
+            }
+            if (q.type === 'multiple') {
+                const ok = Array.isArray(ans) && ans.length === q.correct.length && ans.every(v => q.correct.includes(v));
+                return { isFullCorrect: ok, score: ok ? 1 : 0 };
+            }
+            if (q.type === 'matching') {
+                let matches = 0;
+                if (ans) {
+                    Object.keys(q.correct).forEach(k => {
+                        if (ans[k] === q.correct[k]) matches++;
+                    });
+                }
+                return { isFullCorrect: matches === 4, score: matches * 0.25, matches };
+            }
+            return { isFullCorrect: false, score: 0 };
+        }
+
+        function renderQuestion() {
+            const data = quizData[currentQuestion];
+            const isChecked = checkedQuestions[currentQuestion];
+            const container = document.getElementById('quiz-container');
+
+            // Progress & Badge
+            document.getElementById('progress-text').innerText = `Завдання ${currentQuestion + 1} з ${quizData.length}`;
+            document.getElementById('progress-bar').style.width = `${((currentQuestion + 1) / quizData.length) * 100}%`;
+
+            const badge = document.getElementById('type-badge');
+            if (data.type === 'single') {
+                badge.innerText = "Вибір однієї відповіді";
+                badge.className = "px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800";
+            } else if (data.type === 'multiple') {
+                badge.innerText = "Вибір декількох відповідей";
+                badge.className = "px-3 py-1 rounded-full text-sm font-semibold bg-purple-100 text-purple-800";
+            } else {
+                badge.innerText = "Встановлення відповідності";
+                badge.className = "px-3 py-1 rounded-full text-sm font-semibold bg-amber-100 text-amber-800";
+            }
+
+            // Footer buttons
+            document.getElementById('prev-btn').disabled = currentQuestion === 0;
+            const checkBtn = document.getElementById('check-btn');
+            if (isChecked) {
+                checkBtn.classList.add('hidden');
+            } else {
+                checkBtn.classList.remove('hidden');
+                checkBtn.disabled = !isAnswered(currentQuestion);
+            }
+
+            const nextBtn = document.getElementById('next-btn');
+            if (currentQuestion === quizData.length - 1) {
+                nextBtn.innerText = "Завершити тест";
+                nextBtn.className = "bg-green-600 hover:bg-green-700 text-white px-8 py-2.5 rounded-xl font-bold transition";
+            } else {
+                nextBtn.innerText = "Далі →";
+                nextBtn.className = "bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-xl font-bold transition";
+            }
+
+            // Build Question HTML
+            let html = `<h2 class="text-xl md:text-2xl font-bold mb-6 text-slate-800">${currentQuestion + 1}. ${data.question}</h2>`;
+
+            if (data.type === 'single') {
+                const currentAns = userAnswers[currentQuestion];
+                const letters = ['A', 'B', 'C', 'D'];
+                html += `<div class="space-y-4">`;
+                data.options.forEach((opt, idx) => {
+                    const isSelected = currentAns === idx;
+                    let cardStyle = 'border-slate-200 bg-white';
+                    let circleStyle = 'bg-slate-200 text-slate-700';
+
+                    if (isChecked) {
+                        if (idx === data.correct) {
+                            cardStyle = 'border-green-500 bg-green-50 font-semibold';
+                            circleStyle = 'bg-green-600 text-white';
+                        } else if (isSelected && idx !== data.correct) {
+                            cardStyle = 'border-red-500 bg-red-50 font-semibold';
+                            circleStyle = 'bg-red-600 text-white';
+                        }
+                    } else if (isSelected) {
+                        cardStyle = 'border-blue-600 bg-blue-50 font-semibold';
+                        circleStyle = 'bg-blue-600 text-white';
+                    }
+
+                    html += `
+                        <button onclick="selectSingle(${idx})" ${isChecked ? 'disabled' : ''} class="option-btn w-full text-left p-4 rounded-xl border-2 flex items-center gap-4 ${cardStyle}">
+                            <span class="w-9 h-9 shrink-0 rounded-full flex items-center justify-center font-bold text-base ${circleStyle}">${letters[idx]}</span>
+                            <span class="text-lg text-slate-800">${opt}</span>
+                        </button>
+                    `;
+                });
+                html += `</div>`;
+            } else if (data.type === 'multiple') {
+                const currentAns = userAnswers[currentQuestion] || [];
+                html += `<p class="text-slate-500 text-base mb-4 font-medium">* Оберіть усі правильні варіанти, потім натисніть «Перевірити відповідь»</p>`;
+                html += `<div class="space-y-3">`;
+                data.options.forEach((opt, idx) => {
+                    const isSelected = currentAns.includes(idx);
+                    const isCorrectOpt = data.correct.includes(idx);
+
+                    let cardStyle = 'border-slate-200 bg-white';
+                    let boxStyle = 'border-slate-400 bg-white';
+                    let boxSymbol = '';
+
+                    if (isChecked) {
+                        if (isCorrectOpt && isSelected) {
+                            cardStyle = 'border-green-500 bg-green-50 font-semibold';
+                            boxStyle = 'border-green-600 bg-green-600 text-white';
+                            boxSymbol = '✓';
+                        } else if (isCorrectOpt && !isSelected) {
+                            cardStyle = 'border-green-400 bg-green-50/60 border-dashed';
+                            boxStyle = 'border-green-500 bg-white text-green-600';
+                            boxSymbol = '!';
+                        } else if (!isCorrectOpt && isSelected) {
+                            cardStyle = 'border-red-500 bg-red-50 font-semibold';
+                            boxStyle = 'border-red-600 bg-red-600 text-white';
+                            boxSymbol = '✕';
+                        }
+                    } else if (isSelected) {
+                        cardStyle = 'border-purple-600 bg-purple-50 font-semibold';
+                        boxStyle = 'border-purple-600 bg-purple-600 text-white';
+                        boxSymbol = '✓';
+                    }
+
+                    html += `
+                        <button onclick="toggleMultiple(${idx})" ${isChecked ? 'disabled' : ''} class="option-btn w-full text-left p-4 rounded-xl border-2 flex items-center gap-4 ${cardStyle}">
+                            <div class="w-7 h-7 shrink-0 rounded border-2 flex items-center justify-center font-bold ${boxStyle}">
+                                ${boxSymbol}
+                            </div>
+                            <span class="text-lg text-slate-800">${opt}</span>
+                        </button>
+                    `;
+                });
+                html += `</div>`;
+            } else if (data.type === 'matching') {
+                const currentAns = userAnswers[currentQuestion] || {};
+                html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">`;
+
+                html += `<div class="space-y-3"><h3 class="font-bold text-slate-700">Запитання / Поняття:</h3>`;
+                data.premises.forEach((p) => {
+                    html += `<div class="p-3 bg-slate-100 rounded-lg border border-slate-200 font-medium text-slate-800">${p}</div>`;
+                });
+                html += `</div>`;
+
+                html += `<div class="space-y-3"><h3 class="font-bold text-slate-700">Варіанти відповідей:</h3>`;
+                data.targets.forEach((t) => {
+                    html += `<div class="p-3 bg-amber-50 rounded-lg border border-amber-200 text-slate-800">${t}</div>`;
+                });
+                html += `</div></div>`;
+
+                html += `<h3 class="font-bold text-slate-800 mb-4 border-t pt-4">Вкажіть відповідність:</h3>`;
+                html += `<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">`;
+                data.premises.forEach((p, pIdx) => {
+                    const selectedTarget = currentAns[pIdx] !== undefined ? currentAns[pIdx] : "";
+                    const isPairCorrect = isChecked && selectedTarget === data.correct[pIdx];
+                    const correctLetter = String.fromCharCode(65 + data.correct[pIdx]);
+
+                    let rowStyle = 'bg-slate-50 border-slate-200';
+                    if (isChecked) {
+                        rowStyle = isPairCorrect ? 'bg-green-50 border-green-400' : 'bg-red-50 border-red-400';
+                    }
+
+                    html += `
+                        <div class="flex items-center justify-between gap-3 p-3 border-2 rounded-xl ${rowStyle}">
+                            <span class="font-bold text-slate-800 whitespace-nowrap">${pIdx + 1}:</span>
+                            <select onchange="selectMatching(${pIdx}, this.value)" ${isChecked ? 'disabled' : ''} class="w-full p-2 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:bg-slate-100">
+                                <option value="">-- Оберіть літеру --</option>
+                                ${data.targets.map((_, tIdx) => {
+                                    const letter = String.fromCharCode(65 + tIdx);
+                                    return `<option value="${tIdx}" ${selectedTarget === tIdx ? 'selected' : ''}>${letter}</option>`;
+                                }).join('')}
+                            </select>
+                            ${isChecked && !isPairCorrect ? `<span class="text-sm font-bold text-green-700 whitespace-nowrap">(${correctLetter})</span>` : ''}
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            }
+
+            // Immediate Educational Feedback Box
+            if (isChecked) {
+                const res = evaluateQuestion(currentQuestion);
+                if (res.isFullCorrect) {
+                    html += `
+                        <div class="mt-6 p-5 rounded-xl border-2 border-green-400 bg-green-50 text-green-900">
+                            <div class="font-bold text-xl mb-1">✓ Правильно!</div>
+                            <p class="text-lg">${data.explanation}</p>
+                        </div>
+                    `;
+                } else {
+                    const partialNote = (data.type === 'matching' && res.matches > 0)
+                        ? `Частково правильно (${res.matches} з 4 пар).`
+                        : `Неправильно.`;
+                    html += `
+                        <div class="mt-6 p-5 rounded-xl border-2 border-red-300 bg-red-50 text-red-900">
+                            <div class="font-bold text-xl mb-1">✕ ${partialNote}</div>
+                            <p class="text-lg"><strong>Пояснення:</strong> ${data.explanation}</p>
+                        </div>
+                    `;
+                }
+            }
+
+            container.innerHTML = html;
+        }
+
+        function selectSingle(idx) {
+            if (checkedQuestions[currentQuestion]) return;
+            userAnswers[currentQuestion] = idx;
+            renderQuestion();
+        }
+
+        function toggleMultiple(idx) {
+            if (checkedQuestions[currentQuestion]) return;
+            let currentAns = userAnswers[currentQuestion] || [];
+            if (currentAns.includes(idx)) {
+                currentAns = currentAns.filter(item => item !== idx);
+            } else {
+                currentAns.push(idx);
+            }
+            userAnswers[currentQuestion] = currentAns;
+            renderQuestion();
+        }
+
+        function selectMatching(pIdx, val) {
+            if (checkedQuestions[currentQuestion]) return;
+            let currentAns = userAnswers[currentQuestion] || {};
+            if (val === "") {
+                delete currentAns[pIdx];
+            } else {
+                currentAns[pIdx] = parseInt(val);
+            }
+            userAnswers[currentQuestion] = currentAns;
+            document.getElementById('check-btn').disabled = !isAnswered(currentQuestion);
+        }
+
+        function checkCurrentQuestion() {
+            if (!isAnswered(currentQuestion)) return;
+            checkedQuestions[currentQuestion] = true;
+            renderQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < quizData.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                renderQuestion();
+            }
+        }
+
+        function finishQuiz() {
+            let totalScore = 0;
+
+            quizData.forEach((_, idx) => {
+                totalScore += evaluateQuestion(idx).score;
+            });
+
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('quiz-footer').classList.add('hidden');
+            document.getElementById('progress-text').innerText = "Тест завершено";
+            document.getElementById('progress-bar').style.width = "100%";
+
+            const resultsContainer = document.getElementById('results-container');
+            resultsContainer.classList.remove('hidden');
+
+            const total = quizData.length;
+            const percentage = Math.round((totalScore / total) * 100);
+            document.getElementById('score-percentage').innerText = `${percentage}%`;
+            document.getElementById('score-text').innerText = `Ви набрали ${totalScore} з ${total} балів`;
+
+            const feedback = document.getElementById('score-feedback');
+            if (percentage >= 90) feedback.innerText = "Відмінно! Ви чудово засвоїли матеріал теми «Ароматичні вуглеводні».";
+            else if (percentage >= 70) feedback.innerText = "Добре! Ви впевнено орієнтуєтесь у більшості питань теми.";
+            else if (percentage >= 50) feedback.innerText = "Задовільно. Варто ще раз переглянути пояснення до помилкових завдань.";
+            else feedback.innerText = "Рекомендується повторити матеріали уроку та пройти тест повторно.";
+
+            const reviewList = document.getElementById('review-list');
+            let reviewHtml = '';
+
+            quizData.forEach((q, idx) => {
+                const res = evaluateQuestion(idx);
+                reviewHtml += `
+                    <div class="p-5 rounded-xl border-2 ${res.isFullCorrect ? 'border-green-300 bg-green-50' : 'border-red-200 bg-red-50'}">
+                        <div class="font-bold text-slate-800 text-lg mb-2">${idx + 1}. ${q.question}</div>
+                        <div class="text-base text-slate-700"><strong>Пояснення:</strong> ${q.explanation}</div>
+                    </div>
+                `;
+            });
+
+            reviewList.innerHTML = reviewHtml;
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            userAnswers = new Array(quizData.length).fill(null);
+            checkedQuestions = new Array(quizData.length).fill(false);
+            document.getElementById('results-container').classList.add('hidden');
+            document.getElementById('quiz-container').classList.remove('hidden');
+            document.getElementById('quiz-footer').classList.remove('hidden');
+            renderQuestion();
+        }
+
+        window.onload = initQuiz;
+    </script>
+</body>
+</html>
